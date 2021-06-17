@@ -3,37 +3,32 @@ import {
   Button,
   Center,
   Flex,
-  FormControl,
-  FormHelperText,
-  FormLabel,
   Heading,
-  InputGroup,
-  InputRightElement,
   Modal,
   ModalBody,
   ModalCloseButton,
   ModalContent,
-  ModalFooter,
-  ModalHeader,
   ModalOverlay,
   Text,
   useInterval,
-  useTimeout,
 } from "@chakra-ui/react";
+import Image from "next/image";
+import { useEffect, useState } from "react";
+import styles from "../../styles/Game.module.css";
+import { Subscription } from "../subscription/Subscription";
+import Fishy from "./Fishy-01.png";
 import useCatcher from "./hooks/useCatcher";
 import useFish from "./hooks/useFish";
 import useProgressBar from "./hooks/useProgressBar";
-import Image from "next/image";
-import Fishy from "./Fishy-01.png";
-import { Input } from "@chakra-ui/react";
 
-import styles from "../../styles/Game.module.css";
-import { useEffect, useState } from "react";
-import { Subscription } from "../subscription/Subscription";
 export const Game = () => {
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
   const [gameOver, setGameOver] = useState<boolean>(false);
+  const [gameWon, setGameWon] = useState<boolean>(false);
   const [time, setTime] = useState<number>(15000);
+  const { onMouseDown, onMouseUp, isPressed } = useCatcher({ isPlaying });
+  useFish({ isPlaying });
+  const { progress, resetProgress } = useProgressBar({ isPlaying });
 
   useInterval(
     () => {
@@ -49,9 +44,12 @@ export const Game = () => {
     }
   }, [time]);
 
-  const { onMouseDown, onMouseUp, isPressed } = useCatcher({ isPlaying });
-  useFish({ isPlaying });
-  useProgressBar({ isPlaying });
+  useEffect(() => {
+    if (progress === 100) {
+      setIsPlaying(false);
+      setGameWon(true);
+    }
+  }, [progress]);
 
   return (
     <Box
@@ -198,20 +196,26 @@ export const Game = () => {
         </Box>
       </Center>
       <Modal
-        isOpen={gameOver}
+        isOpen={gameOver || gameWon}
+        closeOnOverlayClick={false}
         onClose={() => {
           setGameOver(false);
           setIsPlaying(false);
+          setGameWon(false);
           setTime(15000);
+          resetProgress();
         }}
       >
         <ModalOverlay />
         <ModalContent>
           <ModalCloseButton />
           <ModalBody>
-            <Heading textAlign="center">Game Over</Heading>
+            <Heading textAlign="center">
+              {gameWon ? `Caught'em!` : "Game Over"}
+            </Heading>
             <Text textAlign="center" fontSize="18px" mt={4} fontStyle="italic">
-              More fish in the Sea but the best fish are in our aqqua {`cast's`}
+              There are more fish in the Sea but the best fish are in our
+              AqquaCast{"'s "}
               tank, enter your email to join our mailing list
             </Text>
             <Box mt={8}>

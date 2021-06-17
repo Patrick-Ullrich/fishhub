@@ -8,6 +8,12 @@ interface IProps {
 const useProgressBar = ({ isPlaying }: IProps) => {
   const [progress, setProgress] = useState<number>(0);
 
+  useEffect(() => {
+    if (!isPlaying) {
+      setProgress(0);
+    }
+  }, [isPlaying]);
+
   // Detect Collision
   useInterval(
     () => {
@@ -37,6 +43,16 @@ const useProgressBar = ({ isPlaying }: IProps) => {
     },
     isPlaying ? 125 : null
   );
+
+  return {
+    progress,
+    resetProgress: () => {
+      setProgress(0);
+      document.getElementById(
+        "catching-progress-filled-wrapper"
+      )!.style.height = 0 + "%";
+    },
+  };
 };
 
 export default useProgressBar;
