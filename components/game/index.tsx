@@ -17,6 +17,7 @@ import { useEffect, useState } from "react";
 import styles from "../../styles/Game.module.css";
 import { Subscription } from "../subscription/Subscription";
 import Fishy from "./Fishy-01.png";
+import useAnalytics from "./hooks/useAnalytics";
 import useCatcher from "./hooks/useCatcher";
 import useFish from "./hooks/useFish";
 import useProgressBar from "./hooks/useProgressBar";
@@ -29,6 +30,13 @@ export const Game = () => {
   const { onMouseDown, onMouseUp, isPressed } = useCatcher({ isPlaying });
   useFish({ isPlaying });
   const { progress, resetProgress } = useProgressBar({ isPlaying });
+  const { trackPlayGame } = useAnalytics();
+
+  useEffect(() => {
+    if (isPlaying) {
+      trackPlayGame();
+    }
+  }, [isPlaying]);
 
   useInterval(
     () => {
