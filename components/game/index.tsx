@@ -41,20 +41,13 @@ export const Game = ({ fishCaught }: IProps) => {
     if (isPlaying) {
       trackPlayGame();
     }
-  }, [isPlaying, trackPlayGame]);
+  }, [isPlaying]);
 
   useEffect(() => {
     if (gameWon) {
-      trackCaughtFish();
       setCaughtFishes((prev) => prev + 1);
     }
-  }, [trackCaughtFish, gameWon]);
-
-  useEffect(() => {
-    if (gameOver) {
-      trackMissedFish();
-    }
-  }, [trackMissedFish, gameOver]);
+  }, [gameWon]);
 
   useInterval(
     () => {
@@ -62,6 +55,12 @@ export const Game = ({ fishCaught }: IProps) => {
     },
     isPlaying ? 1000 : null
   );
+
+  useEffect(() => {
+    if (gameOver) {
+      trackMissedFish();
+    }
+  }, [gameOver]);
 
   useEffect(() => {
     if (time === 0) {
@@ -74,6 +73,7 @@ export const Game = ({ fishCaught }: IProps) => {
     if (progress === 100) {
       setIsPlaying(false);
       setGameWon(true);
+      trackCaughtFish();
     }
   }, [progress]);
 
