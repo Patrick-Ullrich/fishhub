@@ -211,7 +211,7 @@ export const Game = () => {
           <ModalBody>
             <Heading textAlign="center">Game Over</Heading>
             <Text textAlign="center" fontSize="18px" mt={4} fontStyle="italic">
-              More fish in the Sea but the best fish are in our aqqua cast's
+              More fish in the Sea but the best fish are in our aqqua {`cast's`}
               tank, enter your email to join our mailing list
             </Text>
             <Box mt={8}>
