@@ -1,9 +1,10 @@
-import { Button } from "@chakra-ui/react";
+import { Box, Button, Heading } from "@chakra-ui/react";
+import { Game } from "../../components/game";
 
 export default function Marketing() {
   return (
     <div>
-      Marketing<Button colorScheme="blue">Test</Button>
+      <Game />
     </div>
   );
 }
