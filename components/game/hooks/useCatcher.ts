@@ -28,6 +28,12 @@ const useCatcher = ({ isPlaying }: IProps) => {
     isPlaying ? 125 : null
   );
 
+  useEffect(() => {
+    if (!isPlaying) {
+      document.getElementById("catcher")!.style.transform = `translateY(0px)`;
+    }
+  }, [isPlaying]);
+
   return { onMouseDown, onMouseUp, isPressed: keyPressedRef.current };
 };
 
