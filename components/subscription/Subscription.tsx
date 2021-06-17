@@ -57,7 +57,7 @@ export const Subscription = () => {
     });
   };
 
-  const subscribe = async (e) => {
+  const subscribe = async (e: any) => {
     setError("");
     setMessage("");
     e.preventDefault();
