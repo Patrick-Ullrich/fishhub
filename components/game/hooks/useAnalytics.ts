@@ -1,17 +1,42 @@
-import { useEffect } from "react";
+import { useCallback, useEffect } from "react";
 
-enum EventEnum {
+export enum EventEnum {
   LoadGame = "LoadGame",
   PlayGame = "PlayGame",
+  CaughtFish = "CaughtFish",
+  MissedFish = "MissedFish",
 }
 
 const useAnalytics = () => {
-  const trackPlayGame = async () => {
-    await fetch("/api/analytics", {
-      body: JSON.stringify({ event: EventEnum.PlayGame }),
-      method: "POST",
-    });
-  };
+  const trackPlayGame = useCallback(
+    () => async () => {
+      await fetch("/api/analytics", {
+        body: JSON.stringify({ event: EventEnum.PlayGame }),
+        method: "POST",
+      });
+    },
+    []
+  );
+
+  const trackCaughtFish = useCallback(
+    () => async () => {
+      await fetch("/api/analytics", {
+        body: JSON.stringify({ event: EventEnum.CaughtFish }),
+        method: "POST",
+      });
+    },
+    []
+  );
+
+  const trackMissedFish = useCallback(
+    () => async () => {
+      await fetch("/api/analytics", {
+        body: JSON.stringify({ event: EventEnum.MissedFish }),
+        method: "POST",
+      });
+    },
+    []
+  );
 
   useEffect(() => {
     const trackLoadGame = async () => {
@@ -23,7 +48,7 @@ const useAnalytics = () => {
     trackLoadGame();
   }, []);
 
-  return { trackPlayGame };
+  return { trackPlayGame, trackCaughtFish, trackMissedFish };
 };
 
 export default useAnalytics;

@@ -2,7 +2,7 @@ import { connectToDatabase } from "../../util/mongodb";
 
 const analytics = async (req: any, res: any) => {
   const { db } = await connectToDatabase();
-  const { event } = req.body;
+  const { event } = JSON.parse(req.body);
 
   try {
     await db.collection("events").insertOne({ event, datetime: new Date() });

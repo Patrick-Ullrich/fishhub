@@ -22,7 +22,11 @@ import useCatcher from "./hooks/useCatcher";
 import useFish from "./hooks/useFish";
 import useProgressBar from "./hooks/useProgressBar";
 
-export const Game = () => {
+interface IProps {
+  fishCaught: number;
+}
+
+export const Game = ({ fishCaught }: IProps) => {
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
   const [gameOver, setGameOver] = useState<boolean>(false);
   const [gameWon, setGameWon] = useState<boolean>(false);
@@ -30,13 +34,27 @@ export const Game = () => {
   const { onMouseDown, onMouseUp, isPressed } = useCatcher({ isPlaying });
   useFish({ isPlaying });
   const { progress, resetProgress } = useProgressBar({ isPlaying });
-  const { trackPlayGame } = useAnalytics();
+  const { trackPlayGame, trackCaughtFish, trackMissedFish } = useAnalytics();
+  const [caughtFishes, setCaughtFishes] = useState<number>(fishCaught);
 
   useEffect(() => {
     if (isPlaying) {
       trackPlayGame();
     }
-  }, [isPlaying]);
+  }, [isPlaying, trackPlayGame]);
+
+  useEffect(() => {
+    if (gameWon) {
+      trackCaughtFish();
+      setCaughtFishes((prev) => prev + 1);
+    }
+  }, [trackCaughtFish, gameWon]);
+
+  useEffect(() => {
+    if (gameOver) {
+      trackMissedFish();
+    }
+  }, [trackMissedFish, gameOver]);
 
   useInterval(
     () => {
@@ -201,6 +219,9 @@ export const Game = () => {
               {isPressed ? `HOLD!` : `Catch'em!`}
             </Button>
           )}
+          <Text mt={1} textAlign="center">
+            Caught today: {caughtFishes}
+          </Text>
         </Box>
       </Center>
       <Modal
