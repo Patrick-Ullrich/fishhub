@@ -1,15 +1,57 @@
-import { Box, Button, Center, Flex } from "@chakra-ui/react";
+import {
+  Box,
+  Button,
+  Center,
+  Flex,
+  FormControl,
+  FormHelperText,
+  FormLabel,
+  Heading,
+  InputGroup,
+  InputRightElement,
+  Modal,
+  ModalBody,
+  ModalCloseButton,
+  ModalContent,
+  ModalFooter,
+  ModalHeader,
+  ModalOverlay,
+  Text,
+  useInterval,
+  useTimeout,
+} from "@chakra-ui/react";
 import useCatcher from "./hooks/useCatcher";
 import useFish from "./hooks/useFish";
 import useProgressBar from "./hooks/useProgressBar";
 import Image from "next/image";
 import Fishy from "./Fishy-01.png";
+import { Input } from "@chakra-ui/react";
 
 import styles from "../../styles/Game.module.css";
+import { useEffect, useState } from "react";
+import { Subscription } from "../subscription/Subscription";
 export const Game = () => {
-  const { onMouseDown, onMouseUp, isPressed } = useCatcher({ isPlaying: true });
-  useFish({ isPlaying: true });
-  useProgressBar({ isPlaying: true });
+  const [isPlaying, setIsPlaying] = useState<boolean>(false);
+  const [gameOver, setGameOver] = useState<boolean>(false);
+  const [time, setTime] = useState<number>(15000);
+
+  useInterval(
+    () => {
+      setTime((prev) => (prev - 1000 <= 0 ? 0 : prev - 1000));
+    },
+    isPlaying ? 1000 : null
+  );
+
+  useEffect(() => {
+    if (time === 0) {
+      setGameOver(true);
+      setIsPlaying(false);
+    }
+  }, [time]);
+
+  const { onMouseDown, onMouseUp, isPressed } = useCatcher({ isPlaying });
+  useFish({ isPlaying });
+  useProgressBar({ isPlaying });
 
   return (
     <Box
@@ -30,7 +72,7 @@ export const Game = () => {
         <div className={`${styles.bubble} ${styles.x10}`}></div>
       </div>
       <Center height="100%" flexDirection="column">
-        <Box backgroundColor="white" p={8} borderRadius="10px">
+        <Box backgroundColor="white" p={8} borderRadius="10px" mt={10}>
           <Flex alignItems="center" justifyContent="center" height="375px">
             <Box
               id="tank"
@@ -60,7 +102,7 @@ export const Game = () => {
                 width="25px"
                 height="50px"
                 position="absolute"
-                top="calc(100% - 25px)"
+                top="calc(100% - 100px)"
                 willChange="top"
                 left="7.5px"
                 transition="transform 0.2s ease-in"
@@ -68,7 +110,6 @@ export const Game = () => {
                 <Image src={Fishy} alt="fish" />
               </Box>
             </Box>
-
             <Box
               id="catching-progress"
               position="relative"
@@ -85,7 +126,7 @@ export const Game = () => {
                 fontWeight="700"
                 width="200px"
                 position="absolute"
-                color="orange.400"
+                color="rgb(239,175,48)"
                 transform="rotate(90deg)"
               >
                 Catch-O-Meter
@@ -96,7 +137,7 @@ export const Game = () => {
                 id="catching-progress-filled-wrapper"
                 overflow="hidden"
                 willChange="height"
-                height="100%"
+                height="0"
                 width="19px"
                 transition="transform 0.2s ease-in"
               >
@@ -108,24 +149,77 @@ export const Game = () => {
                   height="calc(100% - 2px)"
                   width="19px"
                   borderRightRadius="8px"
-                  bgGradient="linear(to-b, orange.400, red.400)"
+                  bgGradient="linear(to-b, rgb(244,193,83), rgb(239,175,48))"
                 ></Box>
               </Box>
             </Box>
+
+            <Box
+              backgroundColor="white"
+              p={4}
+              position="absolute"
+              top="10px"
+              right="10px"
+              borderRadius="4px"
+            >
+              <Text fontSize="24px">
+                <b>Score:</b> {time}
+              </Text>
+            </Box>
           </Flex>
-          <Button
-            onMouseDown={onMouseDown}
-            onMouseUp={onMouseUp}
-            mt={4}
-            width="300px"
-            color="white"
-            colorScheme="blue"
-            backgroundColor="rgb(0,100,168)"
-          >
-            {isPressed ? `HOLD!` : `Catch'em!`}
-          </Button>
+          {!isPlaying ? (
+            <Button
+              mt={4}
+              onClick={() => setIsPlaying(true)}
+              color="white"
+              bgGradient="linear(to-b, rgb(244,193,83), rgb(239,175,48))"
+              _hover={{
+                bgGradient: "linear(to-b, rgb(244,193,83), rgb(239,175,48))",
+              }}
+              width="100px"
+            >
+              START
+            </Button>
+          ) : (
+            <Button
+              onTouchStart={onMouseDown}
+              onTouchEnd={onMouseUp}
+              onMouseDown={onMouseDown}
+              onMouseUp={onMouseUp}
+              mt={4}
+              width="100px"
+              color="white"
+              colorScheme="blue"
+              backgroundColor="rgb(0,100,168)"
+            >
+              {isPressed ? `HOLD!` : `Catch'em!`}
+            </Button>
+          )}
         </Box>
       </Center>
+      <Modal
+        isOpen={gameOver}
+        onClose={() => {
+          setGameOver(false);
+          setIsPlaying(false);
+          setTime(15000);
+        }}
+      >
+        <ModalOverlay />
+        <ModalContent>
+          <ModalCloseButton />
+          <ModalBody>
+            <Heading textAlign="center">Game Over</Heading>
+            <Text textAlign="center" fontSize="18px" mt={4} fontStyle="italic">
+              More fish in the Sea but the best fish are in our aqqua cast's
+              tank, enter your email to join our mailing list
+            </Text>
+            <Box mt={8}>
+              <Subscription />
+            </Box>
+          </ModalBody>
+        </ModalContent>
+      </Modal>
     </Box>
   );
 };
